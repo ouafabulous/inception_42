@@ -1,0 +1,46 @@
+version : "3.8"
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:inception
+    build: requirements/nginx
+    ports:
+      - "443:443"
+    volumes:
+      - website:/var/www/html
+        #    depends_on:
+        #- wordpress
+    networks:
+      - inception_network
+    restart: always
+
+  mariadb:
+    container_name: mariadb
+    image: mariadb:inception
+    build:
+      context: requirements/mariadb
+      args:
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    networks:
+      - inception_network
+    volumes:
+      - database:/var/lib/mysql
+    restart: always
+
+
+networks:
+  inception_network:
+
+
+volumes:
+  website:
+    driver_opts:
+      type: none
+      device: /home/omoudni/data/website
+      o: bind
+  database:
+    driver_opts:
+      type: none
+      device: /home/omoudni/data/database
+      o: bind
+

@@ -1,8 +1,14 @@
-FROM nginx:latest
+FROM alpine:3.17.3
 
-RUN apt-get update && \
-    apt-get install -y openssl
+RUN apk update --no-cache && \
+    apk add --no-cache --no-progress nginx && \
+    apk add --no-cache --no-progress vim
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY server.crt /etc/nginx/server.crt
-COPY server.key /etc/nginx/server.key
+RUN mkdir -p /etc/nginx/ssl
+RUN apk add --no-cache --no-progress openssl
+RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=login.42.fr/UID=login"
+
+COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY tools/hello_there.html /var/www/index.html 
+
+CMD ["nginx", "-g", "daemon off;"]
